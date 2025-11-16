@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ReceivablePool, PoolStats as PoolStatsType } from '@/types/pools';
-import { TrendingUp, DollarSign, Users, Activity, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useReceivablePool } from '@/hooks';
 
 function PoolCard({ pool }: { pool: ReceivablePool }) {
@@ -215,7 +215,7 @@ export default function PoolsPage() {
           }
         });
       },
-      { 
+      {
         threshold: 0.01,
         rootMargin: '150px'
       }
@@ -227,7 +227,7 @@ export default function PoolsPage() {
         const element = el as HTMLElement;
         const rect = element.getBoundingClientRect();
         const isInView = rect.top < window.innerHeight + 150 && rect.bottom > -150;
-        
+
         if (isInView && !element.classList.contains('animate-in')) {
           element.classList.add('animate-in');
           element.style.opacity = '1';
@@ -238,14 +238,14 @@ export default function PoolsPage() {
     };
 
     setTimeout(observeElements, 50);
-    
+
     const handleScroll = () => {
       const elements = document.querySelectorAll('.fade-in-up:not(.animate-in)');
       elements.forEach((el) => {
         const element = el as HTMLElement;
         const rect = element.getBoundingClientRect();
         const isInView = rect.top < window.innerHeight + 150 && rect.bottom > -150;
-        
+
         if (isInView) {
           element.classList.add('animate-in');
           element.style.opacity = '1';
@@ -268,13 +268,13 @@ export default function PoolsPage() {
       try {
         // Try to fetch real pools from blockchain
         const poolEvents = await getAllPools();
-        
+
         // For now, use mock data if no pools found
         if (poolEvents.data.length === 0) {
           loadMockPools();
           return;
         }
-        
+
         // TODO: Parse pool events and fetch pool details
         // For hackathon, we'll use mock data
         loadMockPools();
