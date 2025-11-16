@@ -1,1 +1,1 @@
-# iota-hack
+# iota-hackathon
