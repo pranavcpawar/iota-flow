@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Providers from '@/providers';
+import { Navbar } from '@/app/navbar';
+import { Note } from '@/app/note';
+
 import './globals.css';
-import Providers from '../../providers';
 import '@iota/dapp-kit/dist/index.css';
 
 const geistSans = Geist({
@@ -26,8 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+      >
+        <Providers>
+          <Navbar />
+          {children}
+          <Note />
+        </Providers>
       </body>
     </html>
   );

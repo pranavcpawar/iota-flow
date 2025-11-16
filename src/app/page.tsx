@@ -1,11 +1,7 @@
-"use client";
-
-import { ConnectButton } from '@iota/dapp-kit';
-
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <ConnectButton />
+    <div className="flex min-h-screen items-center justify-center">
+      <h1 className="text-4xl font-bold">Welcome to Cascade Protocol</h1>
     </div>
   );
 }
