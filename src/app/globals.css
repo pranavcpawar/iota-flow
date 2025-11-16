@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @theme inline {
   --color-background: var(--background);
@@ -82,5 +82,38 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(
+        circle at 25% 25%,
+        oklch(0.488 0.243 264.376 / 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(circle at 75% 75%, oklch(0.696 0.17 162.48 / 0.05) 0%, transparent 50%);
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Enhanced backdrop blur */
+  .backdrop-blur-sm {
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/20;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
   }
 }

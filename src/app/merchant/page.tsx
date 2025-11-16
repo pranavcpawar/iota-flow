@@ -12,22 +12,28 @@ export default function MerchantPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Merchant Dashboard</h1>
-          <p className="text-muted-foreground">Create and manage your sales orders</p>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Create Order Section */}
-          <div className="space-y-6">
-            <CreateSalesOrder onOrderCreated={handleOrderCreated} />
+    <div className="min-h-screen bg-linear-to-br from-background to-background/80">
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12 text-center">
+            <h1 className="text-5xl font-bold bg-linear-to-r from-primary to-chart-1 bg-clip-text text-transparent mb-4">
+              Merchant Dashboard
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Create and manage your sales orders with blockchain-powered security
+            </p>
           </div>
 
-          {/* Orders List Section */}
-          <div className="space-y-6">
-            <SalesOrderList orders={orders} onOrderUpdate={setOrders} />
+          <div className="grid lg:grid-cols-1 gap-12">
+            {/* Create Order Section */}
+            <div className="space-y-8">
+              <CreateSalesOrder onOrderCreated={handleOrderCreated} />
+            </div>
+
+            {/* Orders List Section */}
+            <div className="space-y-8">
+              <SalesOrderList orders={orders} onOrderUpdate={setOrders} />
+            </div>
           </div>
         </div>
       </div>
