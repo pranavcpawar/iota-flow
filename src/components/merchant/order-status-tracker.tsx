@@ -68,10 +68,10 @@ export function OrderStatusTracker({ order }: OrderStatusTrackerProps) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
                   step.completed
-                    ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                    ? 'bg-green-500/10 text-green-800 border-2 border-green-500/20'
                     : step.current
-                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-300 animate-pulse'
-                    : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
+                    ? 'bg-blue-500/10 text-blue-800 border-2 border-blue-500/20 animate-pulse'
+                    : 'bg-gray-500/10 text-gray-400 border-2 border-gray-500/20'
                 }`}
               >
                 {step.completed ? '✓' : index + 1}
@@ -98,7 +98,7 @@ export function OrderStatusTracker({ order }: OrderStatusTrackerProps) {
                   {step.label}
                 </h5>
                 {step.current && (
-                  <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  <span className="px-2 py-0.5 bg-blue-500/10 text-blue-800 text-xs rounded-full">
                     Current
                   </span>
                 )}

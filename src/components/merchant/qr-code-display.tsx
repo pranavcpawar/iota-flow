@@ -9,12 +9,12 @@ interface QRCodeDisplayProps {
 
 export function QRCodeDisplay({ data, size = 200 }: QRCodeDisplayProps) {
   return (
-    <div className="bg-white p-4 rounded-lg border border-border/40">
+    <div className="bg-background p-4 rounded-lg border border-border/40">
       <div className="text-center mb-3">
         <div className="text-xs text-muted-foreground font-medium">Scan to verify order</div>
       </div>
       <div
-        className="flex items-center justify-center bg-white rounded border border-border/20 p-2"
+        className="flex items-center justify-center bg-background rounded border border-border/20 p-2"
         style={{ width: size, height: size }}
       >
         <QRCodeSVG
@@ -31,6 +31,7 @@ export function QRCodeDisplay({ data, size = 200 }: QRCodeDisplayProps) {
           onClick={() => {
             navigator.clipboard.writeText(data);
             // You could add a toast notification here
+            alert('Order data copied to clipboard!');
           }}
         >
           Copy order data
