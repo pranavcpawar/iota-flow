@@ -114,7 +114,7 @@ export function useReceiptNFT() {
           transactionDigest: event.id.txDigest,
         }));
 
-      // For each receipt ID, fetch the full object to get invoice_number
+      // For each receipt ID, fetch the full object to get invoice_number and check ownership
       const receiptObjects = await Promise.all(
         merchantReceipts.map(async (receipt) => {
           try {
@@ -125,10 +125,26 @@ export function useReceiptNFT() {
                 showOwner: true,
               },
             });
-            return {
-              ...receipt,
-              object,
-            };
+            
+            // Check if merchant still owns this NFT (not in a pool)
+            // If owner is the merchant address, it's available for pooling
+            // If owner is a pool address, it's already in a pool
+            const owner = object.data?.owner;
+            const isOwnedByMerchant = 
+              owner && 
+              typeof owner === 'object' && 
+              'AddressOwner' in owner &&
+              owner.AddressOwner === ownerAddress;
+            
+            // Only return NFTs still owned by the merchant (not in pools)
+            if (isOwnedByMerchant) {
+              return {
+                ...receipt,
+                object,
+              };
+            }
+            
+            return null; // NFT is in a pool, don't include it
           } catch (error) {
             console.error(`Error fetching receipt ${receipt.receiptId}:`, error);
             return null;
