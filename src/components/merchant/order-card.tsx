@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { SalesOrder } from '@/types';
 import { QRCodeDisplay } from './qr-code-display';
 import { OrderStatusTracker } from './order-status-tracker';
-import { useReceiptNFT } from '@/hooks';
 
 interface OrderCardProps {
   order: SalesOrder;
@@ -12,34 +10,8 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, onConfirm }: OrderCardProps) {
-  const { mintReceiptNFT } = useReceiptNFT();
-  const [isMinting, setIsMinting] = useState(false);
-
-  const handleMintNFT = async () => {
-    setIsMinting(true);
-    try {
-      await mintReceiptNFT(
-        order.amount,
-        'IOTA',
-        order.dueDate.getTime(),
-        order.customerAddress || 'anonymous',
-        order.orderId,
-        (result) => {
-          console.log('R-NFT minted successfully:', result);
-          onConfirm(); // Update order status
-          setIsMinting(false);
-        },
-        (error) => {
-          console.error('Failed to mint R-NFT:', error);
-          alert('Failed to mint R-NFT. Please try again.');
-          setIsMinting(false);
-        }
-      );
-    } catch (error) {
-      console.error('Error in minting process:', error);
-      setIsMinting(false);
-    }
-  };
+  // Note: Consumer mints the NFT, not the merchant
+  // Merchant just displays order status and can add to pool
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -121,16 +93,26 @@ export function OrderCard({ order, onConfirm }: OrderCardProps) {
 
       {order.status === 'approved' && (
         <div className="mt-4 pt-4 border-t">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-3">
+            <div className="text-sm text-green-800 font-medium mb-1">✅ Customer Approved!</div>
+            <p className="text-xs text-green-700">
+              Receipt NFT has been minted by the customer. You can now add this to a receivable pool.
+            </p>
+            {order.nftTokenId && (
+              <p className="text-xs text-green-600 mt-2 font-mono break-all">
+                Tx: {order.nftTokenId}
+              </p>
+            )}
+          </div>
           <button
-            onClick={handleMintNFT}
-            disabled={isMinting}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => {
+              // TODO: Navigate to pool creation or add to existing pool
+              alert('Pool integration coming soon! For now, use the CLI to create pools.');
+            }}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
           >
-            {isMinting ? 'Minting R-NFT...' : 'Confirm Order & Mint R-NFT'}
+            Add to Receivable Pool
           </button>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            This will create a Receipt NFT on IOTA blockchain
-          </p>
         </div>
       )}
 

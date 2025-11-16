@@ -67,9 +67,89 @@ export function useReceiptNFT() {
     }
   };
 
+  /**
+   * Query for ReceiptMinted events
+   * This allows merchants to detect when consumers mint NFTs
+   */
+  const queryReceiptMintedEvents = async (merchantAddress?: string) => {
+    try {
+      const events = await client.queryEvents({
+        query: {
+          MoveEventType: `${MODULES.RECEIPT_NFT}::ReceiptMinted`,
+        },
+        // Optional: filter by merchant address if provided
+        // Note: IOTA SDK might not support filtering by event fields directly
+      });
+      return events;
+    } catch (error) {
+      console.error('Error querying ReceiptMinted events:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Get all Receipt NFTs owned by an address
+   * This is more reliable than events for detecting new NFTs
+   */
+  const getOwnedReceiptNFTs = async (ownerAddress: string) => {
+    try {
+      // Query for ReceiptMinted events filtered by merchant_id
+      const events = await client.queryEvents({
+        query: {
+          MoveEventType: `${MODULES.RECEIPT_NFT}::ReceiptMinted`,
+        },
+      });
+
+      // Filter events by merchant address and extract receipt IDs
+      const merchantReceipts = events.data
+        .filter((event: any) => {
+          const parsedJson = event.parsedJson;
+          return parsedJson?.merchant_id === ownerAddress;
+        })
+        .map((event: any) => ({
+          receiptId: event.parsedJson?.receipt_id,
+          merchantId: event.parsedJson?.merchant_id,
+          receivableAmount: event.parsedJson?.receivable_amount,
+          dueDate: event.parsedJson?.due_date,
+          transactionDigest: event.id.txDigest,
+        }));
+
+      // For each receipt ID, fetch the full object to get invoice_number
+      const receiptObjects = await Promise.all(
+        merchantReceipts.map(async (receipt) => {
+          try {
+            const object = await client.getObject({
+              id: receipt.receiptId,
+              options: {
+                showContent: true,
+                showOwner: true,
+              },
+            });
+            return {
+              ...receipt,
+              object,
+            };
+          } catch (error) {
+            console.error(`Error fetching receipt ${receipt.receiptId}:`, error);
+            return null;
+          }
+        })
+      );
+
+      return {
+        data: receiptObjects.filter((obj) => obj !== null),
+      };
+    } catch (error) {
+      console.error('Error fetching owned Receipt NFTs:', error);
+      throw error;
+    }
+  };
+
   return {
     mintReceiptNFT,
     getReceiptDetails,
+    queryReceiptMintedEvents,
+    getOwnedReceiptNFTs,
   };
 }
 

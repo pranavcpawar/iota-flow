@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CreateSalesOrder, SalesOrderList } from '@/components/merchant';
 import { SalesOrder } from '@/types';
+import { useOrderSync } from '@/hooks/useOrderSync';
 
 export default function MerchantPage() {
   const [orders, setOrders] = useState<SalesOrder[]>([]);
@@ -10,6 +11,14 @@ export default function MerchantPage() {
   const handleOrderCreated = (order: SalesOrder) => {
     setOrders((prev) => [order, ...prev]);
   };
+
+  // Sync orders with blockchain - detects when consumer mints NFT
+  useOrderSync({
+    orders,
+    onOrderUpdate: setOrders,
+    enabled: true,
+    pollInterval: 5000, // Check every 5 seconds
+  });
 
   return (
     <div className="min-h-screen bg-linear-to-br from-background to-background/80">

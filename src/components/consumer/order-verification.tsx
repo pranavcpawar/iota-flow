@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SalesOrder } from '@/types';
+import { useReceiptNFT } from '@/hooks';
 
 interface OrderVerificationProps {
   order: SalesOrder;
@@ -17,6 +18,7 @@ export function OrderVerification({
   onScanAnother,
 }: OrderVerificationProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { mintReceiptNFT } = useReceiptNFT();
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -37,10 +39,40 @@ export function OrderVerification({
 
   const handleApprove = async () => {
     setIsProcessing(true);
-    // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    onApprove(order);
-    setIsProcessing(false);
+    
+    try {
+      // Consumer approves by minting the Receipt NFT
+      // This creates the on-chain proof of the receivable
+      await mintReceiptNFT(
+        order.amount,
+        'IOTA',
+        order.dueDate.getTime(),
+        order.customerAddress || 'anonymous',
+        order.orderId,
+        (result) => {
+          console.log('Receipt NFT minted by consumer:', result);
+          
+          // Store the NFT ID in the order
+          const approvedOrder = {
+            ...order,
+            status: 'approved' as const,
+            nftTokenId: result.digest, // Store transaction digest
+          };
+          
+          onApprove(approvedOrder);
+          setIsProcessing(false);
+        },
+        (error) => {
+          console.error('Failed to mint Receipt NFT:', error);
+          alert('Failed to approve order. Please try again.');
+          setIsProcessing(false);
+        }
+      );
+    } catch (error) {
+      console.error('Error in approval process:', error);
+      alert('Failed to process approval. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   const getStatusDisplay = () => {
@@ -115,8 +147,7 @@ export function OrderVerification({
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h4 className="font-medium text-yellow-800 mb-2">⚠️ Verify Order Details</h4>
             <p className="text-sm text-yellow-700">
-              Please carefully review the order details above. Once you approve, the merchant will
-              be notified and can proceed with confirmation.
+              By approving, you will sign a blockchain transaction to mint a Receipt NFT. This creates an immutable on-chain record of this receivable.
             </p>
           </div>
 
@@ -133,7 +164,7 @@ export function OrderVerification({
               disabled={isProcessing}
               className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg transition-colors"
             >
-              {isProcessing ? 'Processing...' : '✅ Approve Order'}
+              {isProcessing ? 'Minting NFT...' : '✅ Approve & Mint NFT'}
             </button>
           </div>
         </div>
@@ -143,10 +174,9 @@ export function OrderVerification({
         <div className="space-y-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
             <div className="text-2xl mb-2">✅</div>
-            <h4 className="font-medium text-green-800 mb-2">Order Approved!</h4>
+            <h4 className="font-medium text-green-800 mb-2">Receipt NFT Minted!</h4>
             <p className="text-sm text-green-700">
-              Your approval has been sent to the merchant. They will confirm the order and mint an
-              R-NFT for the receivable pool.
+              You've successfully created a Receipt NFT on the IOTA blockchain. The merchant can now add this to a receivable pool for funding.
             </p>
           </div>
 
