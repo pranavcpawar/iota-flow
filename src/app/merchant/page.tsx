@@ -26,12 +26,12 @@ export default function MerchantPage() {
 
           <div className="grid lg:grid-cols-1 gap-12">
             {/* Create Order Section */}
-            <div className="space-y-8">
+            <div className="space-y-8 mx-auto max-w-3xl w-full">
               <CreateSalesOrder onOrderCreated={handleOrderCreated} />
             </div>
 
             {/* Orders List Section */}
-            <div className="space-y-8">
+            <div className="space-y-8 mx-auto max-w-3xl w-full">
               <SalesOrderList orders={orders} onOrderUpdate={setOrders} />
             </div>
           </div>
