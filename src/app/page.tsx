@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { InteractiveParticles } from '@/components/interactive-particles';
+import { UserDashboard } from '@/components/user-dashboard';
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -170,26 +171,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Stats Grid */}
+        {/* User Dashboard */}
         <section className="container mx-auto px-6 py-16">
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in-up animation-delay-300">
-              {[
-                { value: '0', label: 'Active Orders', color: 'from-blue-500/20 to-blue-500/5' },
-                { value: '0', label: 'R-NFTs Minted', color: 'from-purple-500/20 to-purple-500/5' },
-                { value: '$0', label: 'Pool Value', color: 'from-emerald-500/20 to-emerald-500/5' },
-                { value: '8-16%', label: 'APY Range', color: 'from-orange-500/20 to-orange-500/5' },
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className={`group relative p-6 rounded-xl border border-border/40 bg-gradient-to-br ${stat.color} backdrop-blur-xl hover:border-border transition-all hover:scale-[1.02]`}
-                >
-                  <div className="text-3xl font-semibold mb-1">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/0 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                </div>
-              ))}
-            </div>
+            <UserDashboard />
           </div>
         </section>
 

@@ -266,146 +266,75 @@ export default function PoolsPage() {
     // Load pools from blockchain
     const loadPools = async () => {
       try {
-        // Try to fetch real pools from blockchain
+        // Fetch real pools from blockchain
         const poolEvents = await getAllPools();
 
-        // For now, use mock data if no pools found
         if (poolEvents.data.length === 0) {
-          loadMockPools();
+          console.log('No pools found on blockchain, showing empty state');
+          setPools([]);
+          setIsLoading(false);
           return;
         }
 
-        // TODO: Parse pool events and fetch pool details
-        // For hackathon, we'll use mock data
-        loadMockPools();
+        // Parse pool events and create pool objects
+        const realPools: ReceivablePool[] = poolEvents.data.map((event: any, index: number) => {
+          const parsedJson = event.parsedJson;
+          const poolId = parsedJson?.pool_id || `pool-${index}`;
+          const totalValue = parsedJson?.total_receivable_value || 0;
+          const advanceAmount = parsedJson?.advance_amount || 0;
+          
+          // Calculate tranche values (Senior 75%, Junior 25% of advance)
+          const seniorCapacity = Math.floor(advanceAmount * 0.75);
+          const juniorCapacity = Math.floor(advanceAmount * 0.25);
+
+          return {
+            id: poolId,
+            name: `Pool ${poolId.slice(0, 8)}...`,
+            description: `Receivable pool with ${totalValue / 1_000_000} IOTA total value`,
+            totalValue: totalValue / 1_000_000, // Convert from micro units
+            status: 'funding', // Default status
+            createdAt: new Date(event.timestampMs || Date.now()),
+            maturityDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            seniorTranche: {
+              id: 'senior',
+              name: 'Senior',
+              description: 'Lower risk, stable returns with priority claim',
+              riskLevel: 'Low',
+              minInvestment: 1000,
+              currentTVL: 0,
+              apy: 8,
+              discount: 8,
+              claimPriority: 1,
+              funded: 0,
+              capacity: seniorCapacity / 1_000_000,
+              status: 'funding',
+            },
+            juniorTranche: {
+              id: 'junior',
+              name: 'Junior',
+              description: 'Higher risk, higher returns with subordinate claim',
+              riskLevel: 'High',
+              minInvestment: 500,
+              currentTVL: 0,
+              apy: 15,
+              discount: 15,
+              claimPriority: 2,
+              funded: 0,
+              capacity: juniorCapacity / 1_000_000,
+              status: 'funding',
+            },
+            receivables: [],
+          };
+        });
+
+        setPools(realPools);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error loading pools:', error);
-        loadMockPools();
-      }
-    };
-
-    const loadMockPools = () => {
-      const mockPools: ReceivablePool[] = [
-        {
-          id: 'pool-001',
-          name: 'Pool Alpha',
-          description: 'Diversified receivables pool with high-quality merchants',
-          totalValue: 157000,
-          status: 'funding',
-          createdAt: new Date('2024-11-05'),
-          maturityDate: new Date('2024-12-20'),
-          seniorTranche: {
-            id: 'senior',
-            name: 'Senior',
-            description: 'Lower risk, stable returns with priority claim',
-            riskLevel: 'Low',
-            minInvestment: 1000,
-            currentTVL: 24000,
-            apy: 8,
-            discount: 8,
-            claimPriority: 1,
-            funded: 24000,
-            capacity: 30000,
-            status: 'funding',
-          },
-          juniorTranche: {
-            id: 'junior',
-            name: 'Junior',
-            description: 'Higher risk, higher returns with subordinate claim',
-            riskLevel: 'High',
-            minInvestment: 500,
-            currentTVL: 9500,
-            apy: 15,
-            discount: 15,
-            claimPriority: 2,
-            funded: 9500,
-            capacity: 10000,
-            status: 'funding',
-          },
-          receivables: [],
-        },
-        {
-          id: 'pool-002',
-          name: 'Pool Beta',
-          description: 'Active pool with established merchant relationships',
-          totalValue: 250000,
-          status: 'active',
-          createdAt: new Date('2024-10-15'),
-          maturityDate: new Date('2024-12-15'),
-          seniorTranche: {
-            id: 'senior',
-            name: 'Senior',
-            description: 'Lower risk, stable returns with priority claim',
-            riskLevel: 'Low',
-            minInvestment: 1000,
-            currentTVL: 45000,
-            apy: 7,
-            discount: 7,
-            claimPriority: 1,
-            funded: 45000,
-            capacity: 45000,
-            status: 'active',
-          },
-          juniorTranche: {
-            id: 'junior',
-            name: 'Junior',
-            description: 'Higher risk, higher returns with subordinate claim',
-            riskLevel: 'High',
-            minInvestment: 500,
-            currentTVL: 15000,
-            apy: 14,
-            discount: 14,
-            claimPriority: 2,
-            funded: 15000,
-            capacity: 15000,
-            status: 'active',
-          },
-          receivables: [],
-        },
-        {
-          id: 'pool-003',
-          name: 'Pool Gamma',
-          description: 'New funding opportunity with premium receivables',
-          totalValue: 180000,
-          status: 'funding',
-          createdAt: new Date('2024-11-10'),
-          maturityDate: new Date('2024-12-25'),
-          seniorTranche: {
-            id: 'senior',
-            name: 'Senior',
-            description: 'Lower risk, stable returns with priority claim',
-            riskLevel: 'Low',
-            minInvestment: 1000,
-            currentTVL: 8500,
-            apy: 9,
-            discount: 9,
-            claimPriority: 1,
-            funded: 8500,
-            capacity: 19200,
-            status: 'funding',
-          },
-          juniorTranche: {
-            id: 'junior',
-            name: 'Junior',
-            description: 'Higher risk, higher returns with subordinate claim',
-            riskLevel: 'High',
-            minInvestment: 500,
-            currentTVL: 1820,
-            apy: 16,
-            discount: 16,
-            claimPriority: 2,
-            funded: 1820,
-            capacity: 4800,
-            status: 'funding',
-          },
-          receivables: [],
-        },
-      ];
-
-      setTimeout(() => {
-        setPools(mockPools);
+        // Show empty state on error
+        setPools([]);
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
     loadPools();
@@ -495,6 +424,19 @@ export default function PoolsPage() {
                     <div className="h-10 bg-muted/50 rounded"></div>
                   </div>
                 ))}
+              </div>
+            ) : pools.length === 0 ? (
+              <div className="text-center py-16 fade-in-up">
+                <div className="text-6xl mb-4">🏦</div>
+                <h3 className="text-2xl font-medium mb-2">No Pools Yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Be the first to create a receivable pool!
+                </p>
+                <Link href="/merchant">
+                  <Button className="bg-foreground text-background hover:opacity-90">
+                    Create First Pool
+                  </Button>
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

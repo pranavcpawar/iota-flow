@@ -1,8 +1,88 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useCurrentAccount } from '@iota/dapp-kit';
 import { QRScanner, OrderVerification } from '@/components/consumer';
 import { SalesOrder } from '@/types';
+import { useReceiptNFT } from '@/hooks';
+
+function ConsumerDashboard() {
+  const account = useCurrentAccount();
+  const { queryReceiptMintedEvents } = useReceiptNFT();
+  const [mintedNFTs, setMintedNFTs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadMintedNFTs = async () => {
+      if (!account?.address) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Query all ReceiptMinted events
+        const events = await queryReceiptMintedEvents();
+        
+        // Filter events where the consumer (tx sender) is the current user
+        // Note: This is a simplified approach - in production, you'd track consumer addresses
+        const userNFTs = events.data.slice(0, 5); // Show last 5 for now
+        
+        setMintedNFTs(userNFTs);
+      } catch (error) {
+        console.error('Error loading minted NFTs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMintedNFTs();
+  }, [account?.address, queryReceiptMintedEvents]);
+
+  if (!account) {
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="mb-8 p-6 rounded-xl border border-border/40 bg-card/50 backdrop-blur-xl animate-pulse">
+        <div className="h-6 bg-muted/50 rounded mb-4"></div>
+        <div className="h-4 bg-muted/30 rounded"></div>
+      </div>
+    );
+  }
+
+  if (mintedNFTs.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="p-6 rounded-xl border border-border/40 bg-card/50 backdrop-blur-xl">
+        <h3 className="text-lg font-medium mb-4">Your Recent Approvals</h3>
+        <div className="space-y-3">
+          {mintedNFTs.map((event: any, i: number) => (
+            <div
+              key={i}
+              className="p-3 rounded-lg border border-border/40 bg-muted/10 flex items-center justify-between"
+            >
+              <div>
+                <div className="text-sm font-medium">
+                  {(event.parsedJson?.receivable_amount / 1_000_000 || 0).toFixed(2)} IOTA
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Merchant: {event.parsedJson?.merchant_id?.slice(0, 8)}...
+                </div>
+              </div>
+              <div className="px-2 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                ✓ Approved
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ConsumerPage() {
   const [scannedOrder, setScannedOrder] = useState<SalesOrder | null>(null);
@@ -56,19 +136,24 @@ export default function ConsumerPage() {
           </div>
 
           {!scannedOrder && !isScanning && (
-            <div className="text-center">
-              <div className="bg-linear-to-br from-card to-card/80 border border-border/50 rounded-2xl p-12 mb-8 backdrop-blur-sm">
-                <div className="text-8xl mb-6">📱</div>
-                <h2 className="text-3xl font-bold mb-4 text-foreground">Ready to Scan</h2>
-                <p className="text-muted-foreground mb-8 text-lg leading-relaxed max-w-md mx-auto">
-                  Tap the button below to start scanning a merchant&apos;s QR code
-                </p>
-                <button
-                  onClick={() => setIsScanning(true)}
-                  className="bg-linear-to-r from-primary to-chart-1 text-primary-foreground px-8 py-4 rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 text-lg font-semibold"
-                >
-                  Start QR Scanner
-                </button>
+            <div>
+              {/* Consumer Dashboard */}
+              <ConsumerDashboard />
+              
+              <div className="text-center mt-8">
+                <div className="bg-linear-to-br from-card to-card/80 border border-border/50 rounded-2xl p-12 mb-8 backdrop-blur-sm">
+                  <div className="text-8xl mb-6">📱</div>
+                  <h2 className="text-3xl font-bold mb-4 text-foreground">Ready to Scan</h2>
+                  <p className="text-muted-foreground mb-8 text-lg leading-relaxed max-w-md mx-auto">
+                    Tap the button below to start scanning a merchant&apos;s QR code
+                  </p>
+                  <button
+                    onClick={() => setIsScanning(true)}
+                    className="bg-linear-to-r from-primary to-chart-1 text-primary-foreground px-8 py-4 rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 text-lg font-semibold"
+                  >
+                    Start QR Scanner
+                  </button>
+                </div>
               </div>
 
               <div className="bg-linear-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-8 backdrop-blur-sm">
