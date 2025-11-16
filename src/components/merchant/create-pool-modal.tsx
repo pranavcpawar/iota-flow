@@ -27,9 +27,10 @@ export function CreatePoolModal({ isOpen, onClose, onSuccess }: CreatePoolModalP
       if (!account?.address || !isOpen) return;
 
       try {
-        // Only loads NFTs currently owned by the merchant
-        // NFTs already in pools are transferred to the pool, so they won't appear here
-        // This ensures each NFT can only be in one pool (enforced by blockchain ownership)
+        // Loads NFTs where this address is the merchant
+        // Note: NFTs are owned by consumers, but merchant_id field references this merchant
+        // Only shows NFTs not yet in a pool (still owned by consumers)
+        // Once added to pool, NFTs are transferred to pool and won't appear here
         const nfts = await getOwnedReceiptNFTs(account.address);
         setAvailableNFTs(nfts.data || []);
       } catch (error) {

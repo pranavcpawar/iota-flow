@@ -39,27 +39,27 @@ export default function MerchantPage() {
               </p>
             </div>
             
-            {/* Pool Creation CTA */}
-            {approvedOrders.length > 0 && (
-              <div className="max-w-3xl mx-auto mt-6 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-emerald-700">
-                      {approvedOrders.length} Approved Order{approvedOrders.length > 1 ? 's' : ''} Ready
-                    </div>
-                    <div className="text-sm text-emerald-600/80">
-                      Create a pool to get instant liquidity
-                    </div>
+            {/* Pool Creation CTA - Always visible */}
+            <div className="max-w-3xl mx-auto mt-6 p-4 rounded-xl border border-blue-500/30 bg-blue-500/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-blue-700">
+                    Pool Management
                   </div>
-                  <Button
-                    onClick={() => setIsPoolModalOpen(true)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    Create Pool
-                  </Button>
+                  <div className="text-sm text-blue-600/80">
+                    {approvedOrders.length > 0 
+                      ? `${approvedOrders.length} approved order${approvedOrders.length > 1 ? 's' : ''} ready for pooling`
+                      : 'Create a pool from your approved Receipt NFTs'}
+                  </div>
                 </div>
+                <Button
+                  onClick={() => setIsPoolModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Create Pool
+                </Button>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="grid lg:grid-cols-1 gap-12">
