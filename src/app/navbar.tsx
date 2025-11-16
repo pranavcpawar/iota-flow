@@ -9,7 +9,7 @@ export function Navbar() {
       <nav className="w-full px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="font-bold text-xl flex items-center gap-2">
-            <span>Cascade Protocol</span>
+            <span>IOTA Flow</span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <Link
