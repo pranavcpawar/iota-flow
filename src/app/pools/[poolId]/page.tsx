@@ -6,6 +6,7 @@ import { ReceivablePool, Tranche, Investment } from '@/types/pools';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, TrendingUp, TrendingDown, DollarSign, Users } from 'lucide-react';
+import { useReceivablePool } from '@/hooks';
 
 interface InvestmentFormProps {
   tranche: Tranche;
@@ -16,6 +17,7 @@ interface InvestmentFormProps {
 function InvestmentForm({ tranche, poolId, onInvestment }: InvestmentFormProps) {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { investSenior, investJunior } = useReceivablePool();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,26 +27,45 @@ function InvestmentForm({ tranche, poolId, onInvestment }: InvestmentFormProps) 
       const investmentAmount = parseFloat(amount);
       if (investmentAmount < tranche.minInvestment) {
         alert(`Minimum investment for ${tranche.name} tranche is $${tranche.minInvestment}`);
+        setIsLoading(false);
         return;
       }
 
-      const expectedReturn = investmentAmount * (1 + tranche.apy / 100);
+      // Convert to micro units (IOTA uses 6 decimals)
+      const amountInMicro = Math.floor(investmentAmount * 1_000_000);
 
-      const investment = {
-        investorAddress: '0x1234...5678', // This would come from connected wallet
-        trancheId: tranche.id,
+      // Call the appropriate contract function
+      const investFunction = tranche.id === 'senior' ? investSenior : investJunior;
+      
+      await investFunction(
         poolId,
-        amount: investmentAmount,
-        expectedReturn,
-      };
+        amountInMicro,
+        (result) => {
+          console.log('Investment successful:', result);
+          
+          const expectedReturn = investmentAmount * (1 + tranche.apy / 100);
+          const investment = {
+            investorAddress: '0x1234...5678', // This would come from connected wallet
+            trancheId: tranche.id,
+            poolId,
+            amount: investmentAmount,
+            expectedReturn,
+          };
 
-      onInvestment(investment);
-      setAmount('');
-      alert(`Successfully invested $${investmentAmount} in ${tranche.name} tranche!`);
+          onInvestment(investment);
+          setAmount('');
+          alert(`Successfully invested $${investmentAmount} in ${tranche.name} tranche!`);
+          setIsLoading(false);
+        },
+        (error) => {
+          console.error('Investment failed:', error);
+          alert('Failed to process investment. Please try again.');
+          setIsLoading(false);
+        }
+      );
     } catch (error) {
       console.error('Error creating investment:', error);
       alert('Failed to create investment. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };

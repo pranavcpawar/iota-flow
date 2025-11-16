@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { SalesOrder } from '@/types';
 import { QRCodeDisplay } from './qr-code-display';
 import { OrderStatusTracker } from './order-status-tracker';
+import { useReceiptNFT } from '@/hooks';
 
 interface OrderCardProps {
   order: SalesOrder;
@@ -10,6 +12,35 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, onConfirm }: OrderCardProps) {
+  const { mintReceiptNFT } = useReceiptNFT();
+  const [isMinting, setIsMinting] = useState(false);
+
+  const handleMintNFT = async () => {
+    setIsMinting(true);
+    try {
+      await mintReceiptNFT(
+        order.amount,
+        'IOTA',
+        order.dueDate.getTime(),
+        order.customerAddress || 'anonymous',
+        order.orderId,
+        (result) => {
+          console.log('R-NFT minted successfully:', result);
+          onConfirm(); // Update order status
+          setIsMinting(false);
+        },
+        (error) => {
+          console.error('Failed to mint R-NFT:', error);
+          alert('Failed to mint R-NFT. Please try again.');
+          setIsMinting(false);
+        }
+      );
+    } catch (error) {
+      console.error('Error in minting process:', error);
+      setIsMinting(false);
+    }
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -91,11 +122,15 @@ export function OrderCard({ order, onConfirm }: OrderCardProps) {
       {order.status === 'approved' && (
         <div className="mt-4 pt-4 border-t">
           <button
-            onClick={onConfirm}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors"
+            onClick={handleMintNFT}
+            disabled={isMinting}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Confirm Order & Mint R-NFT
+            {isMinting ? 'Minting R-NFT...' : 'Confirm Order & Mint R-NFT'}
           </button>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            This will create a Receipt NFT on IOTA blockchain
+          </p>
         </div>
       )}
 

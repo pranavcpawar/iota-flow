@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SalesOrder } from '@/types';
+import { useReceiptNFT } from '@/hooks';
 
 interface CreateSalesOrderProps {
   onOrderCreated: (order: SalesOrder) => void;

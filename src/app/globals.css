@@ -100,6 +100,10 @@
     backdrop-filter: saturate(180%) blur(20px);
   }
 
+  .backdrop-blur-xl {
+    backdrop-filter: saturate(180%) blur(40px);
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
@@ -115,5 +119,153 @@
 
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground;
+  }
+
+  /* Rauno-style animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Ensure animation completes and stays visible */
+  @keyframes fade-in-up-complete {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1 !important;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .fade-in-up {
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+
+  .fade-in-up.animate-in {
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Ensure elements stay visible after animation */
+  .fade-in-up.animate-in,
+  .fade-in-up.animate-in * {
+    opacity: 1 !important;
+  }
+
+  /* Hero section immediate animation - no opacity 0 */
+  .hero-section {
+    opacity: 1;
+  }
+
+  .hero-section > * {
+    opacity: 1;
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .hero-section > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .hero-section > *:nth-child(2) {
+    animation-delay: 100ms;
+  }
+
+  .hero-section > *:nth-child(3) {
+    animation-delay: 200ms;
+  }
+
+  .hero-section > *:nth-child(4) {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Focus visible */
+  *:focus-visible {
+    outline: 2px solid oklch(0.551 0.027 264.364);
+    outline-offset: 2px;
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: oklch(0.488 0.243 264.376 / 0.3);
   }
 }

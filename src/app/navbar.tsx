@@ -1,46 +1,49 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ConnectButton } from '@iota/dapp-kit';
 
 export function Navbar() {
+  const pathname = usePathname();
+
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/merchant', label: 'Merchant' },
+    { href: '/consumer', label: 'Consumer' },
+    { href: '/pools', label: 'Pools' },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border/50">
-      <nav className="w-full px-6 h-16 flex items-center justify-between">
+    <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
+      <nav className="container mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="font-bold text-2xl flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-linear-to-r from-primary to-chart-1 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300">
-              <span className="text-primary-foreground font-bold text-sm">IF</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-6 h-6 rounded-md bg-foreground flex items-center justify-center transition-transform group-hover:scale-110">
+              <div className="w-3 h-3 rounded-sm bg-background" />
             </div>
-            <span className="bg-linear-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-              IOTA Flow
-            </span>
+            <span className="font-medium text-sm">IOTA Flow</span>
           </Link>
           <div className="hidden md:flex items-center gap-1">
-            <Link
-              href="/"
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200 font-medium"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/merchant"
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200 font-medium"
-            >
-              Merchant
-            </Link>
-            <Link
-              href="/consumer"
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200 font-medium"
-            >
-              Consumer
-            </Link>
-            <Link
-              href="/pools"
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200 font-medium"
-            >
-              Pools
-            </Link>
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative px-3 py-1.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-foreground" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
         <div className="flex items-center gap-4">
